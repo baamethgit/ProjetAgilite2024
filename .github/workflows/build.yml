@@ -106,7 +106,7 @@ jobs:
 
       - name: Check deploy
         run : |
-          if curl -f http://${{ secrets.REMOTE_HOST }}:8080/cicd/_health; then
+          if curl -f http://${{ secrets.REMOTE_HOST }}:80/cicd/_health; then
             echo "Service is running."
           else
             echo "Service is not running."
