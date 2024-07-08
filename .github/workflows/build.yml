@@ -49,13 +49,24 @@ jobs:
         #votre travail
         #adapter : peut utiliser sonarcloud ou une instance distante
         run:  mvn clean verify sonar:sonar -Dsonar.organization=baamethgit -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.projectKey=baamethgit_ProjetAgilite2024
-
-      - name: Check Quality Gate
-        #votre travail
-        #verifier si la Quality Gate is ok
-        run: |
-          echo "The Quality Gate status is ${{ steps.quality-gate-check.outputs.quality-gate-status }}"
-        # echo "Checking quality gate ... "
+      
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        # timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+      
+      - name: Show SonarQube Quality Gate Status
+        run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+      
+      # - name: Check Quality Gate
+      #   #votre travail
+      #   #verifier si la Quality Gate is ok
+      #   run: |
+      #     echo "The Quality Gate status is ${{ steps.quality-gate-check.outputs.quality-gate-status }}"
+      #   # echo "Checking quality gate ... "
 
       - name: Package
         run: mvn -B package  -DskipTests=true
@@ -100,8 +111,8 @@ jobs:
       - name: Wait for deploy to finish
         #votre travail
         run: |
-          echo "Wait 30s ... "
-          sleep 30
+          echo "Wait 60s ... "
+          sleep 60
           echo "deployment finished"
 
       - name: Check deploy
@@ -113,9 +124,7 @@ jobs:
             exit 1
           fi
         #verifier si le deploiement s'est bien passe
-        # env:
-        #   REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        #   REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+       
         # run: |
           
           # echo " 1) Run Get request <my_server_ip:my_port/cicd/_health> to check if service is running ...\n 2) Get request should return 200 with content <Welcome to my Todo app> ..."
