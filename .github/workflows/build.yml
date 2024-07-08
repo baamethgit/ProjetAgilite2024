@@ -71,11 +71,18 @@ jobs:
         run: |
           docker push --all-tags  ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}
 
-      - name: Deploy to Dev
+      - name: Login to my remote server
         #votre travail
         #se connecter a un serveur distant et deployer l'image docker que vous venez de builder
-        run: echo " 1) Login to my remote server ...\n 2) Stop docker container if running ... \n 3) Pull latest version and run it ... "
+        run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.REMOTE_USER}}@${{secrets.REMOTE_HOST}}
 
+      - name: Stop docker container if running
+        run: docker stop ${{secrets.DOCKER_REGISTRY_IMAGE }} || true
+      
+      
+      - name: Pull latest version and run it
+        run: echo " 3) Pull latest version and run it ... "
+      
       - name: Wait for deploy to finish
         #votre travail
         run: |
