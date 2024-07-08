@@ -71,6 +71,8 @@ jobs:
         run: |
           docker push --all-tags  ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}
 
+      #votre travail
+      #se connecter a un serveur distant et deployer l'image docker que vous venez de builder
       - name: Login to my remote server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -81,22 +83,22 @@ jobs:
           echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST
-          #votre travail
-          #se connecter a un serveur distant et deployer l'image docker que vous venez de builder
-      # run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.REMOTE_USER}}@${{secrets.REMOTE_HOST}}
-
+         
       - name: Stop docker container if running
-        run: docker stop ${{secrets.DOCKER_REGISTRY_IMAGE }} || true
+        run: docker stop ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }} || true
       
-      
-      - name: Pull latest version and run it
-        run: echo " 3) Pull latest version and run it ... "
+      - name: Pull latest version
+        run: docker pull ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
+
+      - name: Run latest version
+        run: docker run -d --name myapp -p 80:8080 ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
+      # run: echo " 3) Pull latest version and run it ... "
       
       - name: Wait for deploy to finish
         #votre travail
         run: |
-          echo "Wait 30s ... "
-          sleep 30
+          echo "Wait 60s ... "
+          sleep 60
 
       - name: Check deploy
         #verifier si le deploiement s'est bien passe
