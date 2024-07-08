@@ -2,9 +2,9 @@ name: Build-Analyze
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
 
 
 jobs:
@@ -36,9 +36,9 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # - name: Dependencies Scan
+      - name: Dependencies Scan
       #   if: 1 > 2
-      #   run: mvn clean verify -DskipTests -Pcve
+        run: mvn clean verify -DskipTests -Pcve
 
       - name: Unit Testing
         run: mvn test -Put

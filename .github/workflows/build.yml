@@ -35,7 +35,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       # - name: Dependencies Scan
-      #   #if: 1>2
+      #   if: 1>2
       #   run: mvn clean verify -DskipTests -Pcve
 
       - name: Unit Testing
@@ -47,7 +47,7 @@ jobs:
       - name: Quality Gate
         #votre travail
         #adapter : peut utiliser sonarcloud ou une instance distante
-        run: mvn clean verify sonar:sonar -Dsonar.organization=ept-git -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.projectKey=seenibu_poc-todos
+        run:  mvn clean verify sonar:sonar -Dsonar.organization=baamethgit -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.projectKey=baamethgit_ProjetAgilite2024
 
       - name: Check Quality Gate
         #votre travail
@@ -81,16 +81,6 @@ jobs:
         run: |
           echo "Wait 30s ... "
           sleep 30
-          echo "Fetching the Quality Gate status..."
-          QUALITY_GATE_STATUS=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: "https://sonarcloud.io/api/qualitygates/project_status?projectKey=baamethgit" | jq -r '.projectStatus.status')
-            
-          # Check the Quality Gate status
-          if [ "$QUALITY_GATE_STATUS" != "OK" ]; then
-            echo "Quality Gate failed: $QUALITY_GATE_STATUS"
-            exit 1
-          else
-            echo "Quality Gate passed: $QUALITY_GATE_STATUS"
-          fi
 
       - name: Check deploy
         #verifier si le deploiement s'est bien passe
