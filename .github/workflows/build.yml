@@ -72,9 +72,18 @@ jobs:
           docker push --all-tags  ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}
 
       - name: Login to my remote server
-        #votre travail
-        #se connecter a un serveur distant et deployer l'image docker que vous venez de builder
-        run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.REMOTE_USER}}@${{secrets.REMOTE_HOST}}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST
+          #votre travail
+          #se connecter a un serveur distant et deployer l'image docker que vous venez de builder
+      # run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{secrets.REMOTE_USER}}@${{secrets.REMOTE_HOST}}
 
       - name: Stop docker container if running
         run: docker stop ${{secrets.DOCKER_REGISTRY_IMAGE }} || true
