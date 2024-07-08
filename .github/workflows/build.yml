@@ -98,12 +98,29 @@ jobs:
         #votre travail
         run: |
           echo "Wait 60s ... "
-          sleep 60
+          sleep 30
 
       - name: Check deploy
         #verifier si le deploiement s'est bien passe
         #votre travail
-        run: echo " 1) Run Get request <my_server_ip:my_port/cicd/_health> to check if service is running ...\n 2) Get request should return 200 with content <Welcome to my Todo app> ..."
+        env:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+        run: |
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+          if [ $status_code -eq 200 ]; then
+            response=$(curl -s http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+            if [[ $response == *"Welcome to my Todo app"* ]]; then
+              echo "Deployment successful! Service is running with expected content."
+            else
+              echo "Deployment failed. Service is running but content does not match expectations."
+              exit 1
+            fi
+          else
+            echo "Deployment failed. Service is not running as expected (HTTP code $status_code)."
+            exit 1
+          fi
+        # echo " 1) Run Get request <my_server_ip:my_port/cicd/_health> to check if service is running ...\n 2) Get request should return 200 with content <Welcome to my Todo app> ..."
 
 
 
