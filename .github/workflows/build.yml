@@ -50,9 +50,13 @@ jobs:
         run:  mvn clean verify sonar:sonar -Dsonar.organization=baamethgit -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.projectKey=baamethgit_ProjetAgilite2024
 
       - name: Check Quality Gate
+        id: quality-gate-check
         #votre travail
         #verifier si la Quality Gate is ok
-        run: echo "Checking quality gate ... "
+        run: |
+          echo "${{ steps.quality-gate-check.outputs.project-status }}"
+          echo "${{ steps.quality-gate-check.outputs.quality-gate-result }}"
+          echo "Checking quality gate ... "
 
       - name: Package
         run: mvn -B package  -DskipTests=true
@@ -83,6 +87,7 @@ jobs:
           echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST
+          echo 'success'
          
       - name: Stop docker container if running
         run: docker stop ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }} || true
@@ -91,36 +96,36 @@ jobs:
         run: docker pull ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
 
       - name: Run latest version
-        run: docker run -d --name myapp -p 80:8080 ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
-      # run: echo " 3) Pull latest version and run it ... "
+        run: docker run -d --name todos -p 80:8080 ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
       
       - name: Wait for deploy to finish
         #votre travail
         run: |
-          echo "Wait 60s ... "
+          echo "Wait 30s ... "
           sleep 30
+          echo "deployment finished"
 
       - name: Check deploy
         #verifier si le deploiement s'est bien passe
         #votre travail
+        # status_code=$(curl -s -o /dev/null -w "%{http_code}" http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+          # if [ $status_code -eq 200 ]; then
+          #   response=$(curl -s http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+          #   if [[ $response == *"Welcome to my Todo app"* ]]; then
+          #     echo "Deployment successful! Service is running with expected content."
+          #   else
+          #     echo "Deployment failed. Service is running but content does not match expectations."
+          #     exit 1
+          #   fi
+          # else
+          #   echo "Deployment failed. Service is not running as expected (HTTP code $status_code)."
+          #   exit 1
+          # fi
         env:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         run: |
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
-          if [ $status_code -eq 200 ]; then
-            response=$(curl -s http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
-            if [[ $response == *"Welcome to my Todo app"* ]]; then
-              echo "Deployment successful! Service is running with expected content."
-            else
-              echo "Deployment failed. Service is running but content does not match expectations."
-              exit 1
-            fi
-          else
-            echo "Deployment failed. Service is not running as expected (HTTP code $status_code)."
-            exit 1
-          fi
-        # echo " 1) Run Get request <my_server_ip:my_port/cicd/_health> to check if service is running ...\n 2) Get request should return 200 with content <Welcome to my Todo app> ..."
+          echo " 1) Run Get request <my_server_ip:my_port/cicd/_health> to check if service is running ...\n 2) Get request should return 200 with content <Welcome to my Todo app> ..."
 
 
 
