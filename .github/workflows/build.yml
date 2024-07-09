@@ -89,13 +89,13 @@ jobs:
           echo 'success'
          
       - name: Stop docker container if running
-        run: docker stop ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }} || true
+        run: sudo docker stop ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }} || true
       
       - name: Pull latest version
-        run: docker pull ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
+        run: sudo docker pull ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
 
       - name: Run latest version
-        run: docker run -d --name todos -p 80:8080 ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
+        run: sudo docker run -d --name todos -p 80:8080 ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
       
       - name: Wait for deploy to finish
         #votre travail
