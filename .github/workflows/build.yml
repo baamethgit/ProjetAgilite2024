@@ -106,14 +106,13 @@ jobs:
       - name: Check deploy
         env:
             REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-            REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
         run: |
             echo "1) Run Get request to check if service is running ..."
-            status=$(curl -s -o /dev/null -w "%{http_code}" http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://$REMOTE_HOST:80/cicd/_health)
             if [ $status -eq 200 ]; then
               echo "Service is running."
               echo "2) Get request returned HTTP 200."
-              content=$(curl -s http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+              content=$(curl -s http://$REMOTE_HOST:80/cicd/_health)
               if [[ $content == *"Welcome to my Todo app"* ]]; then
                 echo "Content verification successful."
               else
