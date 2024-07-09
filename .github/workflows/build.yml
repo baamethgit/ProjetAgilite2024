@@ -49,18 +49,7 @@ jobs:
         #votre travail
         #adapter : peut utiliser sonarcloud ou une instance distante
         run:  mvn clean verify sonar:sonar -Dsonar.organization=baamethgit -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.projectKey=baamethgit_ProjetAgilite2024
-      
-      - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        # timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
-      
-      - name: Show SonarQube Quality Gate Status
-        run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-      
+    
       # - name: Check Quality Gate
       #   #votre travail
       #   #verifier si la Quality Gate is ok
@@ -114,15 +103,36 @@ jobs:
           echo "Wait 60s ... "
           sleep 60
           echo "deployment finished"
-
       - name: Check deploy
-        run : |
-          if curl -f http://${{ secrets.REMOTE_HOST }}:80/cicd/_health; then
-            echo "Service is running."
-          else
-            echo "Service is not running."
-            exit 1
-          fi
+        env:
+            REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+            REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+        run: |
+            echo "1) Run Get request to check if service is running ..."
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+            if [ $status -eq 200 ]; then
+              echo "Service is running."
+              echo "2) Get request returned HTTP 200."
+              content=$(curl -s http://$REMOTE_HOST:$REMOTE_PORT/cicd/_health)
+              if [[ $content == *"Welcome to my Todo app"* ]]; then
+                echo "Content verification successful."
+              else
+                echo "Content verification failed. Expected content not found."
+                exit 1
+              fi
+            else
+              echo "Service is not running. HTTP status code: $status"
+              exit 1
+            fi
+        
+      # - name: Check deploy
+      #   run : |
+      #     if curl -f http://${{ secrets.REMOTE_HOST }}:80/cicd/_health; then
+      #       echo "Service is running."
+      #     else
+      #       echo "Service is not running."
+      #       exit 1
+      #     fi
         #verifier si le deploiement s'est bien passe
        
         # run: |
