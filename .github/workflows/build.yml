@@ -111,12 +111,12 @@ jobs:
             REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         run: |
             echo "1) Run Get request to check if service is running ..."
-            status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/cicd/_health)
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://$REMOTE_HOST:80/cicd/_health)
             if [ $status -eq 200 ]; then
               echo "Service is running."
               echo "2) Get request returned HTTP 200."
-              content=$(curl -s http://localhost:80/cicd/_health)
-              if [[ $content == *"Welcome to my Todo app"* ]]; then
+              content=$(curl -s http://$REMOTE_HOST:80/cicd/_health)
+              if [[ $content == *"UP"* ]]; then
                 echo "Content verification successful."
               else
                 echo "Content verification failed. Expected content not found."
