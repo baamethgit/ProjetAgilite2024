@@ -91,7 +91,7 @@ jobs:
       - name: Stop and remove docker container if running
         run: |
           docker stop ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }} || true
-          docker rm ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }} || true
+          docker rm -f ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }} || true
       
       - name: Pull latest version
         run: docker pull ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_REGISTRY_IMAGE }}:latest
