@@ -115,8 +115,8 @@ jobs:
             if [ $status -eq 200 ]; then
               echo "Service is running."
               echo "2) Get request returned HTTP 200."
-              content=$(curl -s http://$REMOTE_HOST:80/cicd/_health)
-              if [[ $content == *"UP"* ]]; then
+              content=$(curl -s http://$REMOTE_HOST:80/cicd)
+              if [[ $content == *"Welcome to my Todo app"* ]]; then
                 echo "Content verification successful."
               else
                 echo "Content verification failed. Expected content not found."
